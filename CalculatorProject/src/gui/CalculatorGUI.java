@@ -23,20 +23,22 @@ public class CalculatorGUI extends Application{
 			wrapperPane = new VBox(SPACING);
 			rows = new HBox[NUM_ROWS];
 			
-			for(int i = 2; i >= 0; i--) {
+			for(int i = 3; i >= 0; i--) {
 				rows[i+1] = new HBox(SPACING);
 				wrapperPane.getChildren().add(rows[i+1]);
 				for(int j = 1; j <= 3; j++) { 
+					final int NUMBER = ((i-1)*3 + j);
 					
-					final int NUMBER = (i*3 + j);
-					Button numberButton = new Button("" + NUMBER);
-					
-					numberButton.setOnAction(e -> {
-						memory.add("" + (NUMBER));
-						System.out.println(NUMBER);
-					});
-					
-					rows[i+1].getChildren().add(numberButton);
+					if(NUMBER > -1) {
+						Button numberButton = new Button("" + NUMBER);
+						
+						numberButton.setOnAction(e -> {
+							memory.add("" + (NUMBER));
+							System.out.println(NUMBER);
+						});
+						
+						rows[i+1].getChildren().add(numberButton);
+					}
 				}
 			}
 			
