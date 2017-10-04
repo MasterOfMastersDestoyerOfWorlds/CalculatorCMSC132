@@ -1,5 +1,5 @@
 package gui;
 
 public interface State {
-	public void addOperator(String operator);
+	public void addOperator(String operator, CalculatorGUI calculatorGUI);
 }

@@ -14,12 +14,14 @@ public class CalculatorGUI extends Application{
 		private Scene scene;
 		private VBox wrapperPane;
 		private HBox[] rows;
-		private final int NUM_ROWS = 5;
+		private final int NUM_ROWS = 6;
 		private final int SPACING = 10;
 		protected ArrayList<String> memory = new ArrayList<String>();
 		protected State calculatorState;
 		protected State firstOpState = new FirstOperatorState();
 		protected State secondOpState = new SecondOperatorState();
+		protected State errorState = new ErrorState();
+		protected TextField answerBox;
 	
 		@Override
 		public void start(Stage primaryStage) throws Exception {
@@ -41,92 +43,102 @@ public class CalculatorGUI extends Application{
 						
 						numberButton.setOnAction(e -> {
 							memory.add("" + (NUMBER));
+							updateAnswerBox();
 						});
 						
-						rows[4-i].getChildren().add(numberButton);
+						rows[NUM_ROWS-1-i].getChildren().add(numberButton);
 					}
 				}
 			}
-			
-			Button squareRootButton = new Button("√");
-			squareRootButton.setOnAction(e -> {
-				calculatorState.addOperator("sqrt");
-				int solution = solve(memory);
-				memory.clear();
-				memory.add("" + solution);
-				calculatorState = firstOpState;
-			});
-			rows[0].getChildren().add(squareRootButton);
-			
-			Button inverseButton = new Button("1/x");
-			inverseButton.setOnAction(e -> {
-				calculatorState.addOperator("1/x");
-				int solution = solve(memory);
-				memory.clear();
-				memory.add("" + solution);
-				calculatorState = firstOpState;
-			});
-			rows[0].getChildren().add(inverseButton);
-			
-			Button plusButton = new Button("+");
-			plusButton.setOnAction(e -> {
-				calculatorState.addOperator("+");
-			});
-			rows[0].getChildren().add(plusButton);
-			
-			Button minusButton = new Button("-");
-			minusButton.setOnAction(e -> {
-				calculatorState.addOperator("-");
-			});
-			rows[1].getChildren().add(minusButton);
-			
-			Button divideButton = new Button("/");
-			divideButton.setOnAction(e -> {
-				calculatorState.addOperator("/");
-			});
-			rows[2].getChildren().add(divideButton);
-			
-			Button timesButton = new Button("*");
-			timesButton.setOnAction(e -> {
-				calculatorState.addOperator("*");
-			});
-			rows[3].getChildren().add(timesButton);
-			
-			Button equalsButton = new Button("=");
-			equalsButton.setOnAction(e -> {
-				int solution = solve(memory);
-				memory.clear();
-				memory.add("" + solution);
-				calculatorState = firstOpState;
-				
-			});
-			
-			Button clearButton = new Button("C");
-			clearButton.setOnAction(e -> {
-				int solution = solve(memory);
-				memory.clear();
-				memory.add("" + solution);
-				calculatorState = firstOpState;
-				
-			});
+			answerBox = new TextField();
+			answerBox.setEditable(false);
+			rows[0].getChildren().add(answerBox);
 			
 			Button clearEntryButton = new Button("CE");
 			clearEntryButton.setOnAction(e -> {
 				String entry = memory.remove(memory.size());
+				
 				try {
 					Integer.parseInt(entry);
 				}
 				catch(NumberFormatException nfe) {
 					calculatorState = firstOpState;
 				}
+				updateAnswerBox();
 				
 			});
 			
-			rows[4].getChildren().addAll(clearButton, clearEntryButton, equalsButton);
+			Button squareRootButton = new Button("√");
+			squareRootButton.setOnAction(e -> {
+				calculatorState.addOperator("sqrt", this);
+				resetMem();
+				updateAnswerBox();
+			});
+			
+			Button inverseButton = new Button("1/x");
+			inverseButton.setOnAction(e -> {
+				calculatorState.addOperator("1/x", this);
+				resetMem();
+				updateAnswerBox();
+			});
+			
+			Button clearButton = new Button("C");
+			clearButton.setOnAction(e -> {
+				memory.clear();
+				calculatorState = firstOpState;
+				updateAnswerBox();
+				
+			});
+			
+			rows[1].getChildren().addAll(squareRootButton, inverseButton, clearEntryButton, clearButton);
+
+			addOperatorButton("-", 2);
+			addOperatorButton("+", 3);
+			addOperatorButton("/", 4);
+			
+			Button equalsButton = new Button("=");
+			equalsButton.setOnAction(e -> {
+				resetMem();
+				updateAnswerBox();
+			});
+			
+			Button decimalButton = new Button(".");
+			clearButton.setOnAction(e -> {
+				memory.add(".");
+				updateAnswerBox();
+			});
+			
+			rows[5].getChildren().addAll( decimalButton, equalsButton);
+			
+			addOperatorButton("*", 5);
 			
 			scene = new Scene(wrapperPane);
 			primaryStage.setScene(scene);
 			primaryStage.show();
+		}
+		
+		private void addOperatorButton(String op, int row) {
+			Button button = new Button(op);
+			button.setOnAction(e -> {
+				calculatorState.addOperator(op, this);
+				updateAnswerBox();
+			});
+			rows[row].getChildren().add(button);
+		}
+		
+		protected void resetMem() {
+			int solution = solve(memory);
+			memory.clear();
+			memory.add("" + solution);
+			calculatorState = firstOpState;
+		}
+		
+		protected void updateAnswerBox() {
+			String compialation = "";
+			for(String op : memory) {
+				compialation += op;
+			}
+			answerBox.setText(compialation);
 		}
 		
 		public static int solve(ArrayList<String> memory) {
