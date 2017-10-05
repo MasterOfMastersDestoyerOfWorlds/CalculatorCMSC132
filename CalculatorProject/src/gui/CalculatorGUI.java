@@ -16,11 +16,13 @@ public class CalculatorGUI extends Application{
 		private HBox[] rows;
 		private final int NUM_ROWS = 6;
 		private final int SPACING = 10;
-		protected ArrayList<String> memory = new ArrayList<String>();
+		protected String firstEntry = "";
+		protected String operator = "";
+		protected String secondEntry = "";
 		protected State calculatorState;
 		protected State firstOpState = new FirstOperatorState();
 		protected State secondOpState = new SecondOperatorState();
-		protected State errorState = new ErrorState();
+		protected  State errorState = new ErrorState();
 		protected TextField answerBox;
 	
 		@Override
@@ -42,7 +44,7 @@ public class CalculatorGUI extends Application{
 						Button numberButton = new Button("" + NUMBER);
 						
 						numberButton.setOnAction(e -> {
-							memory.add("" + (NUMBER));
+							calculatorState.addNumber("" + (NUMBER), this);
 							updateAnswerBox();
 						});
 						
@@ -56,14 +58,7 @@ public class CalculatorGUI extends Application{
 			
 			Button clearEntryButton = new Button("CE");
 			clearEntryButton.setOnAction(e -> {
-				String entry = memory.remove(memory.size());
-				
-				try {
-					Integer.parseInt(entry);
-				}
-				catch(NumberFormatException nfe) {
-					calculatorState = firstOpState;
-				}
+				calculatorState.clearEntry(this);
 				updateAnswerBox();
 				
 			});
@@ -84,7 +79,9 @@ public class CalculatorGUI extends Application{
 			
 			Button clearButton = new Button("C");
 			clearButton.setOnAction(e -> {
-				memory.clear();
+				firstEntry = "";
+				secondEntry = "";
+				operator ="";
 				calculatorState = firstOpState;
 				updateAnswerBox();
 				
@@ -104,7 +101,7 @@ public class CalculatorGUI extends Application{
 			
 			Button decimalButton = new Button(".");
 			clearButton.setOnAction(e -> {
-				memory.add(".");
+				calculatorState.addNumber(".", this);
 				updateAnswerBox();
 			});
 			
@@ -127,22 +124,43 @@ public class CalculatorGUI extends Application{
 		}
 		
 		protected void resetMem() {
-			int solution = solve(memory);
-			memory.clear();
-			memory.add("" + solution);
+			double solution = solve(firstEntry, operator, secondEntry);
+			clearMemory();
 			calculatorState = firstOpState;
+			calculatorState.addNumber("" + solution, this);
 		}
 		
 		protected void updateAnswerBox() {
-			String compialation = "";
-			for(String op : memory) {
-				compialation += op;
-			}
-			answerBox.setText(compialation);
+			answerBox.setText(firstEntry + " " + operator + " " + secondEntry);
 		}
 		
-		public static int solve(ArrayList<String> memory) {
+		public double solve(String first, String op, String second) {
+			if(second.equals("") && (op != "sqrt" || op != "1/x")) {
+				calculatorState = errorState;
+			}
+			try {
+				double value = 0;
+				double firstNum = Double.parseDouble(first);
+				double secondNum = Double.parseDouble(second);
+				switch (op){
+					case "+": return firstNum + secondNum;
+					case "-": return firstNum - secondNum;
+					case "*": return firstNum * secondNum;
+					case "/": return firstNum / secondNum;
+					case "sqrt": return Math.sqrt(firstNum);
+					case "1/x": return 1/firstNum;
+				}
+			}
+			catch(NumberFormatException e) {
+				calculatorState = errorState;
+			}
 			return 0;
+		}
+		
+		protected void clearMemory() {
+			firstEntry = "";
+			secondEntry = "";
+			operator ="";
 		}
 		
 		public static void main(String[] args) {
