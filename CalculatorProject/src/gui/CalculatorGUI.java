@@ -22,7 +22,7 @@ public class CalculatorGUI extends Application{
 		protected State calculatorState;
 		protected State firstOpState = new FirstOperatorState();
 		protected State secondOpState = new SecondOperatorState();
-		protected  State errorState = new ErrorState();
+		protected State errorState = new ErrorState();
 		protected TextField answerBox;
 	
 		@Override
@@ -45,7 +45,7 @@ public class CalculatorGUI extends Application{
 						
 						numberButton.setOnAction(e -> {
 							calculatorState.addNumber("" + (NUMBER), this);
-							updateAnswerBox();
+							calculatorState.updateAnswerBox(this);
 						});
 						
 						rows[NUM_ROWS-1-i].getChildren().add(numberButton);
@@ -59,22 +59,21 @@ public class CalculatorGUI extends Application{
 			Button clearEntryButton = new Button("CE");
 			clearEntryButton.setOnAction(e -> {
 				calculatorState.clearEntry(this);
-				updateAnswerBox();
-				
+				calculatorState.updateAnswerBox(this);				
 			});
 			
 			Button squareRootButton = new Button("√");
 			squareRootButton.setOnAction(e -> {
 				calculatorState.addOperator("sqrt", this);
 				resetMem();
-				updateAnswerBox();
+				calculatorState.updateAnswerBox(this);
 			});
 			
 			Button inverseButton = new Button("1/x");
 			inverseButton.setOnAction(e -> {
 				calculatorState.addOperator("1/x", this);
 				resetMem();
-				updateAnswerBox();
+				calculatorState.updateAnswerBox(this);
 			});
 			
 			Button clearButton = new Button("C");
@@ -83,7 +82,7 @@ public class CalculatorGUI extends Application{
 				secondEntry = "";
 				operator ="";
 				calculatorState = firstOpState;
-				updateAnswerBox();
+				calculatorState.updateAnswerBox(this);
 				
 			});
 			
@@ -96,13 +95,14 @@ public class CalculatorGUI extends Application{
 			Button equalsButton = new Button("=");
 			equalsButton.setOnAction(e -> {
 				resetMem();
-				updateAnswerBox();
+
+				calculatorState.updateAnswerBox(this);
 			});
 			
 			Button decimalButton = new Button(".");
-			clearButton.setOnAction(e -> {
+			decimalButton.setOnAction(e -> {
 				calculatorState.addNumber(".", this);
-				updateAnswerBox();
+				calculatorState.updateAnswerBox(this);
 			});
 			
 			rows[5].getChildren().addAll( decimalButton, equalsButton);
@@ -118,30 +118,37 @@ public class CalculatorGUI extends Application{
 			Button button = new Button(op);
 			button.setOnAction(e -> {
 				calculatorState.addOperator(op, this);
-				updateAnswerBox();
+				calculatorState.updateAnswerBox(this);
 			});
 			rows[row].getChildren().add(button);
 		}
 		
 		protected void resetMem() {
 			double solution = solve(firstEntry, operator, secondEntry);
+			String solutionStr = "" + solution;
+			String[] decimal = solutionStr.split("[.]");
+			if(Long.parseLong(decimal[1]) == 0) {
+				solutionStr = decimal[0];
+			}
 			clearMemory();
-			calculatorState = firstOpState;
-			calculatorState.addNumber("" + solution, this);
+			if(calculatorState != errorState) {
+				calculatorState = firstOpState;
+			}
+			calculatorState.addNumber(solutionStr, this);
 		}
 		
-		protected void updateAnswerBox() {
-			answerBox.setText(firstEntry + " " + operator + " " + secondEntry);
-		}
+
 		
 		public double solve(String first, String op, String second) {
-			if(second.equals("") && (op != "sqrt" || op != "1/x")) {
+			if(op != "sqrt" && op != "1/x" && second.equals("")) {
 				calculatorState = errorState;
 			}
 			try {
-				double value = 0;
 				double firstNum = Double.parseDouble(first);
-				double secondNum = Double.parseDouble(second);
+				double secondNum = 0;
+				if(op != "sqrt" && op != "1/x") {
+					secondNum = Double.parseDouble(second);
+				}
 				switch (op){
 					case "+": return firstNum + secondNum;
 					case "-": return firstNum - secondNum;

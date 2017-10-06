@@ -20,4 +20,11 @@ public class ErrorState implements State {
 		
 	}
 
+	@Override
+	public void updateAnswerBox(CalculatorGUI gui) {
+			gui.answerBox.setText("Error");		
+			gui.clearMemory();
+			gui.calculatorState = gui.firstOpState;
+	}
+
 }

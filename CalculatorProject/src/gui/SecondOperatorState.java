@@ -27,4 +27,10 @@ public class SecondOperatorState implements State {
 		
 	}
 
+	@Override
+	public void updateAnswerBox(CalculatorGUI gui) {
+		gui.answerBox.setText(gui.firstEntry + " " + gui.operator + " " + gui.secondEntry);
+		
+	}
+
 }
