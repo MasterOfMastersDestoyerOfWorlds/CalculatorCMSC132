@@ -6,6 +6,7 @@ public class SecondOperatorState implements State {
 	public void addOperator(String operator, CalculatorGUI gui) {
 		gui.resetMem();
 		gui.operator = operator;
+		gui.calculatorState = gui.secondOpState;
 		
 	}
 
