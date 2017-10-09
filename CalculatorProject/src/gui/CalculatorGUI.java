@@ -52,6 +52,7 @@ public class CalculatorGUI extends Application{
 				}
 			}
 		}
+		
 		answerBox = new TextField();
 		answerBox.setEditable(false);
 		rows[0].getChildren().add(answerBox);
@@ -144,26 +145,34 @@ public class CalculatorGUI extends Application{
 			double solution = solve(firstEntry, operator, secondEntry);
 			String solutionStr = "" + solution;
 			String[] decimal = solutionStr.split("[.]");
+			
 			if(Long.parseLong(decimal[1]) == 0) {
 				solutionStr = decimal[0];
 			}
+			
 			clearMemory();
+			
 			if(calculatorState != errorState) {
 				calculatorState = firstOpState;
 			}
+			
 			calculatorState.addNumber(solutionStr, this);
 		}
 		protected void resetMemFunction() {
 			double solution = solveFunction(firstEntry, operator);
 			String solutionStr = "" + solution;
 			String[] decimal = solutionStr.split("[.]");
+			
 			if(Long.parseLong(decimal[1]) == 0) {
 				solutionStr = decimal[0];
 			}
+			
 			clearMemory();
+			
 			if(calculatorState != errorState) {
 				calculatorState = firstOpState;
 			}
+			
 			calculatorState.addNumber(solutionStr, this);
 		}
 
@@ -172,10 +181,12 @@ public class CalculatorGUI extends Application{
 			if(second.equals("")) {
 				calculatorState = errorState;
 			}
+			
 			try {
 				double value = 0;
 				double firstNum = Double.parseDouble(first);
 				double secondNum = Double.parseDouble(second);
+				
 				switch (op){
 					case "+": return firstNum + secondNum;
 					case "-": return firstNum - secondNum;
@@ -187,6 +198,7 @@ public class CalculatorGUI extends Application{
 			catch(NumberFormatException e) {
 				calculatorState = errorState;
 			}
+			
 			return 0;
 		}
 		
@@ -194,9 +206,11 @@ public class CalculatorGUI extends Application{
 			if((op != "sqrt" && op != "1/x" && op != "x^2" && op != "x^3")) {
 				calculatorState = errorState;
 			}
+			
 			try {
 				double value = 0;
 				double firstNum = Double.parseDouble(first);
+				
 				switch (op){
 					case "sqrt": return Math.sqrt(firstNum);
 					case "1/x": return 1/firstNum;
@@ -207,6 +221,7 @@ public class CalculatorGUI extends Application{
 			catch(NumberFormatException e) {
 				calculatorState = errorState;
 			}
+			
 			return 0;
 		}
 		
